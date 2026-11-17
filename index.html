@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경만의 바닷속 아지트</title>
+    <!-- 가독성과 즐거움을 주는 구글 폰트 (Jua & Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 초기화 및 스타일 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* 깊은 바닷속 그라데이션 배경 */
+            background: linear-gradient(180deg, #0077b6 0%, #023e8a 45%, #03045e 100%);
+            position: relative;
+        }
+
+        h1, h2, h3, .jua-font {
+            font-family: 'Jua', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* 바닷속 배경 요소 (햇빛, 기포, 해초, 물고기) */
+        .ocean-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* 수면에서 내려오는 햇살 효과 */
+        .sunrays {
+            position: absolute;
+            top: -10%;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(144, 224, 239, 0.35) 0%, rgba(0, 119, 182, 0) 70%);
+            animation: pulseLight 6s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseLight {
+            0% { opacity: 0.6; transform: scaleX(1); }
+            100% { opacity: 1; transform: scaleX(1.1); }
+        }
+
+        /* 해초 애니메이션 */
+        .seaweed-container {
+            position: absolute;
+            bottom: -10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            opacity: 0.6;
+        }
+
+        .seaweed {
+            width: 24px;
+            height: 120px;
+            background: linear-gradient(to top, #1b4332, #40916c);
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            transform-origin: bottom center;
+            animation: sway 4s infinite ease-in-out alternate;
+        }
+
+        .seaweed:nth-child(2) { height: 160px; animation-delay: -1s; background: linear-gradient(to top, #1b4332, #52b788); }
+        .seaweed:nth-child(3) { height: 90px; animation-delay: -2.5s; }
+        .seaweed:nth-child(4) { height: 140px; animation-delay: -0.5s; background: linear-gradient(to top, #1b4332, #52b788); }
+        .seaweed:nth-child(5) { height: 110px; animation-delay: -3s; }
+
+        @keyframes sway {
+            0% { transform: rotate(-10deg) skewX(-5deg); }
+            100% { transform: rotate(10deg) skewX(5deg); }
+        }
+
+        /* 헤엄치는 물고기 스타일 */
+        .fish {
+            position: absolute;
+            font-size: 2rem;
+            user-select: none;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        /* 오른쪽으로 헤엄치는 물고기 (이모지는 기본적으로 왼쪽을 보므로 좌우반전) */
+        @keyframes swimRight {
+            0% { transform: translateX(-10vw) scaleX(-1) translateY(0px); }
+            25% { transform: translateX(25vw) scaleX(-1) translateY(-15px); }
+            50% { transform: translateX(55vw) scaleX(-1) translateY(10px); }
+            75% { transform: translateX(85vw) scaleX(-1) translateY(-10px); }
+            100% { transform: translateX(115vw) scaleX(-1) translateY(5px); }
+        }
+
+        /* 왼쪽으로 헤엄치는 물고기 */
+        @keyframes swimLeft {
+            0% { transform: translateX(115vw) translateY(0px); }
+            25% { transform: translateX(85vw) translateY(15px); }
+            50% { transform: translateX(55vw) translateY(-10px); }
+            75% { transform: translateX(25vw) translateY(10px); }
+            100% { transform: translateX(-10vw) translateY(-5px); }
+        }
+
+        /* 올라가는 물방울 */
+        .bubble {
+            position: absolute;
+            bottom: -30px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: rise linear infinite;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            20% { opacity: 0.8; }
+            50% { transform: translateY(-50vh) translateX(15px); }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-110vh) translateX(-15px); opacity: 0; }
+        }
+
+        /* 메인 컨테이너 (콘텐츠 영역) */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 44px;
+        }
+
+        /* 반투명 유리 느낌(Glassmorphism) 박스 공통 */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            padding: 34px 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        /* 헤더 / 프로필 영역 */
+        header {
+            animation: floatBox 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatBox {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
+        .badge {
+            display: inline-block;
+            background: #00b4d8;
+            color: #03045e;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 10px rgba(0, 180, 216, 0.4);
+        }
+
+        header h1 {
+            font-size: 3.3rem;
+            margin-bottom: 16px;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            color: #caf0f8;
+            line-height: 1.25;
+        }
+
+        header p {
+            font-size: 1.35rem;
+            line-height: 1.7;
+            color: #e0fbfc;
+            word-break: keep-all;
+        }
+
+        /* 섹션 제목 */
+        .section-title {
+            font-size: 2.3rem;
+            margin-bottom: 12px;
+            color: #90e0ef;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .section-sub {
+            font-size: 1.2rem;
+            color: #caf0f8;
+            margin-bottom: 28px;
+            opacity: 0.95;
+            word-break: keep-all;
+        }
+
+        /* 좋아하는 것 3가지 - 3D 플립 카드 그리드 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        /* 모바일에서는 1열로 배치 */
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 2.6rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            header p {
+                font-size: 1.2rem;
+            }
+        }
+
+        .flip-card {
+            background-color: transparent;
+            height: 300px;
+            perspective: 1000px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* 클릭 시 뒤집히는 클래스 */
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 카드 앞면 */
+        .flip-card-front {
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.45), rgba(0, 119, 182, 0.7));
+        }
+
+        .flip-card-front:hover {
+            border-color: #90e0ef;
+        }
+
+        .card-emoji {
+            font-size: 4.5rem;
+            margin-bottom: 14px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+        }
+
+        .card-title {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .tap-hint {
+            font-size: 1.05rem;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 16px;
+            border-radius: 20px;
+            color: #caf0f8;
+        }
+
+        /* 카드 뒷면 */
+        .flip-card-back {
+            background: linear-gradient(135deg, #0096c7, #023e8a);
+            color: #ffffff;
+            transform: rotateY(180deg);
+            border-color: #48cae4;
+        }
+
+        .flip-card-back h3 {
+            font-size: 1.65rem;
+            color: #ffd166;
+            margin-bottom: 12px;
+        }
+
+        .flip-card-back p {
+            font-size: 1.18rem;
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+
+        /* OX 퀴즈 영역 */
+        .quiz-question {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            color: #ffffff;
+            word-break: keep-all;
+        }
+
+        .ox-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-bottom: 20px;
+        }
+
+        .ox-btn {
+            width: 125px;
+            height: 125px;
+            border-radius: 50%;
+            border: none;
+            font-family: 'Jua', sans-serif;
+            font-size: 3.8rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+
+        .ox-btn:active {
+            transform: scale(0.92);
+        }
+
+        .btn-o {
+            background: linear-gradient(135deg, #06d6a0, #118ab2);
+            color: white;
+        }
+
+        .btn-o:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(6, 214, 160, 0.5);
+        }
+
+        .btn-x {
+            background: linear-gradient(135deg, #ef476f, #d90429);
+            color: white;
+        }
+
+        .btn-x:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(239, 71, 111, 0.5);
+        }
+
+        .quiz-feedback {
+            min-height: 75px;
+            font-size: 1.38rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            padding: 16px;
+            line-height: 1.5;
+            word-break: keep-all;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-success {
+            background: rgba(6, 214, 160, 0.25);
+            border: 1px solid #06d6a0;
+            color: #80ffdb;
+        }
+
+        .feedback-fail {
+            background: rgba(239, 71, 111, 0.25);
+            border: 1px solid #ef476f;
+            color: #ffccd5;
+        }
+
+        /* 틀렸을 때 흔들리는 애니메이션 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .shake-anim {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* 오늘 할 미션 뽑기 영역 */
+        .mission-box {
+            background: rgba(3, 4, 94, 0.5);
+            border: 2px dashed #48cae4;
+            border-radius: 18px;
+            padding: 30px 24px;
+            margin-bottom: 24px;
+            min-height: 125px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #ffd166;
+            word-break: keep-all;
+            line-height: 1.55;
+        }
+
+        .mission-btn {
+            background: linear-gradient(90deg, #ffb703, #fb8500);
+            color: #03045e;
+            border: none;
+            padding: 20px 38px;
+            font-size: 1.55rem;
+            font-family: 'Jua', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 183, 3, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .mission-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 183, 3, 0.6);
+        }
+
+        .mission-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 축하 효과(폭죽/물방울 파티클) */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1.8rem;
+            animation: popOut 1.2s ease-out forwards;
+        }
+
+        @keyframes popOut {
+            0% {
+                transform: translate(0, 0) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1.3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        footer {
+            text-align: center;
+            font-size: 1.15rem;
+            color: #90e0ef;
+            opacity: 0.9;
+            margin-top: -10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 바닷속 애니메이션 배경 -->
+    <div class="ocean-bg" id="oceanBg">
+        <div class="sunrays"></div>
+        <!-- 해초들 -->
+        <div class="seaweed-container">
+            <div class="seaweed"></div>
+            <div class="seaweed"></div>
+            <div class="seaweed"></div>
+            <div class="seaweed"></div>
+            <div class="seaweed"></div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="container">
+        
+        <!-- 1. 자기소개 헤더 -->
+        <header class="glass-box">
+            <span class="badge">🌊 깊은 바닷속 에너자이저</span>
+            <h1>안녕! 나는 '경민2'야 🐠</h1>
+            <p>
+                시원한 바닷속처럼 에너지가 넘치는 <strong>경민2</strong>의 아지트에 온 걸 환영해!<br>
+                내가 뭘 좋아하는지, 오늘 어떤 미션을 할지 같이 놀면서 알아보자!
+            </p>
+        </header>
+
+        <!-- 2. 좋아하는 것 3가지 (클릭 시 뒤집히는 카드) -->
+        <section class="glass-box">
+            <h2 class="section-title">💙 내가 좋아하는 것 3가지</h2>
+            <p class="section-sub">카드를 톡! 눌러서 뒤집어 봐. 숨겨진 이유가 나와!</p>
+            
+            <div class="cards-grid">
+                <!-- 카드 1: 축구 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="card-emoji">⚽</div>
+                            <h3 class="card-title jua-font">축구</h3>
+                            <span class="tap-hint">눌러서 이유 보기 👆</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>왜 축구가 좋냐면!</h3>
+                            <p>
+                                공 하나만 있으면 심장이 두근두근! 
+                                경기장을 전력 질주하다가 골망을 흔들 때의 그 짜릿한 쾌감은 
+                                바닷속 파도보다 시원하거든! ⚡
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 카드 2: 헬스 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="card-emoji">🏋️‍♂️</div>
+                            <h3 class="card-title jua-font">헬스</h3>
+                            <span class="tap-hint">눌러서 이유 보기 👆</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>왜 헬스가 좋냐면!</h3>
+                            <p>
+                                쇠질은 절대 배신하지 않으니까! 
+                                어제의 나보다 1kg이라도 더 무거운 덤벨을 들어 올릴 때, 
+                                내 안의 슈퍼히어로가 깨어나는 기분이야! 💪
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 카드 3: 피파 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="card-emoji">🎮</div>
+                            <h3 class="card-title jua-font">피파 (FIFA)</h3>
+                            <span class="tap-hint">눌러서 이유 보기 👆</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>왜 피파가 좋냐면!</h3>
+                            <p>
+                                현실에서 다리가 아플 땐 손가락으로 세계 최고 감독이 된다! 
+                                나만의 드림팀으로 환상적인 개인기와 중거리 슛을 꽂아 넣으면 
+                                스트레스 100% 증발! 🏆
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. OX 퀴즈 -->
+        <section class="glass-box" id="quizSection">
+            <h2 class="section-title">❓ 경민2 탐구 OX 퀴즈</h2>
+            <p class="section-sub">과연 나를 얼마나 잘 알고 있을까?</p>
+
+            <div class="quiz-question">
+                Q. "나는 운동을 좋아한다"
+            </div>
+
+            <div class="ox-buttons">
+                <button class="ox-btn btn-o" onclick="checkQuiz('O')">O</button>
+                <button class="ox-btn btn-x" onclick="checkQuiz('X')">X</button>
+            </div>
+
+            <div class="quiz-feedback" id="quizFeedback">
+                O 또는 X 버튼을 눌러 정답을 맞혀 봐!
+            </div>
+        </section>
+
+        <!-- 4. 오늘 할 미션 뽑기 -->
+        <section class="glass-box">
+            <h2 class="section-title">🎲 오늘 할 미션 뽑기</h2>
+            <p class="section-sub">심심할 땐 버튼을 눌러서 오늘의 랜덤 미션에 도전해 봐!</p>
+
+            <div class="mission-box" id="missionDisplay">
+                👇 아래 버튼을 누르면 오늘의 미션이 등장해!
+            </div>
+
+            <button class="mission-btn" onclick="pickRandomMission()">
+                ✨ 오늘 할 미션 뽑기!
+            </button>
+        </section>
+
+        <footer>
+            <p>🌊 Made for 경민2 | 즐거운 바닷속 여행 되세요! 🐬</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // 1. 바닷속 배경에 물고기와 물방울 동적 생성하기
+        function initOceanBackground() {
+            const oceanBg = document.getElementById('oceanBg');
+            
+            // 헤엄칠 바다 생물 이모지 목록
+            const seaCreatures = ['🐠', '🐟', '🐡', '🐬', '🐳', '🦈', '🐙', '🐢'];
+            
+            // 물고기 10마리 생성
+            for (let i = 0; i < 10; i++) {
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                fish.textContent = seaCreatures[i % seaCreatures.length];
+                
+                // 랜덤 높이, 크기, 속도 설정
+                const topPos = Math.random() * 85 + 5; // 5% ~ 90%
+                const size = Math.random() * 1.5 + 1.2; // 1.2rem ~ 2.7rem
+                const duration = Math.random() * 15 + 12; // 12초 ~ 27초
+                const delay = Math.random() * -20; // 처음부터 화면 곳곳에 배치
+                const goRight = Math.random() > 0.5;
+
+                fish.style.top = `${topPos}%`;
+                fish.style.fontSize = `${size}rem`;
+                fish.style.animation = `${goRight ? 'swimRight' : 'swimLeft'} ${duration}s linear ${delay}s infinite`;
+                
+                oceanBg.appendChild(fish);
+            }
+
+            // 올라가는 물방울 25개 생성
+            for (let i = 0; i < 25; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                
+                const leftPos = Math.random() * 100;
+                const size = Math.random() * 18 + 6; // 6px ~ 24px
+                const duration = Math.random() * 8 + 5; // 5초 ~ 13초
+                const delay = Math.random() * 10;
+
+                bubble.style.left = `${leftPos}%`;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.animationDuration = `${duration}s`;
+                bubble.style.animationDelay = `${delay}s`;
+
+                oceanBg.appendChild(bubble);
+            }
+        }
+
+        // 2. 카드 뒤집기 토글 함수
+        function toggleCard(cardElement) {
+            cardElement.classList.toggle('flipped');
+        }
+
+        // 3. OX 퀴즈 정답 확인 및 효과 함수
+        function checkQuiz(answer) {
+            const feedback = document.getElementById('quizFeedback');
+            const quizSection = document.getElementById('quizSection');
+
+            // 기존 애니메이션 클래스 초기화
+            quizSection.classList.remove('shake-anim');
+            void quizSection.offsetWidth; // 리플로우 강제 발생 (애니메이션 재실행용)
+
+            if (answer === 'O') {
+                // 정답(O)일 때 축하 효과
+                feedback.className = 'quiz-feedback feedback-success';
+                feedback.innerHTML = '🎉 딩동댕! 정답이야! 축구, 헬스까지 운동 없인 못 살지! 💪⚽';
+                createCelebrationParticles();
+            } else {
+                // 오답(X)일 때 아쉬운 효과
+                feedback.className = 'quiz-feedback feedback-fail';
+                feedback.innerHTML = '😢 땡! 아쉽지만 틀렸어~ 나는 운동을 엄청 좋아하는 경민2라고! 다시 눌러봐!';
+                quizSection.classList.add('shake-anim');
+            }
+        }
+
+        // 정답 축하 파티클(폭죽/물방울/트로피) 생성 함수
+        function createCelebrationParticles() {
+            const emojis = ['🎉', '🎊', '⚽', '💪', '🏆', '🫧', '✨'];
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // 화면 중앙 부근에서 사방으로 퍼지게 설정
+                particle.style.left = `${centerX}px`;
+                particle.style.top = `${centerY}px`;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 250 + 80;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+
+                document.body.appendChild(particle);
+
+                // 애니메이션 끝나면 요소 제거
+                setTimeout(() => {
+                    particle.remove();
+                }, 1200);
+            }
+        }
+
+        // 4. 오늘 할 미션 랜덤 뽑기 (12개 준비)
+        const missions = [
+            "🏋️‍♂️ 지금 바로 스쿼트 20개 완벽한 자세로 해내기!",
+            "⚽ 축구 개인기(헛다리 짚기 or 볼 리프팅) 10번 성공하기!",
+            "💧 시원한 물 한 컵 쭉 들이켜고 수분 충전하기!",
+            "🎮 피파 한 판 하면서 멋진 중거리 슛 골 넣기!",
+            "💪 팔굽혀펴기(푸쉬업) 한계까지 도전해 보기!",
+            "🧘‍♂️ 5분 동안 시원하게 전신 스트레칭하기!",
+            "🏃‍♂️ 동네 한 바퀴 가볍게 조깅하거나 산책하기!",
+            "🔥 플랭크 1분 동안 흔들리지 않고 버티기!",
+            "📺 내가 제일 좋아하는 축구 선수의 하이라이트 영상 보기!",
+            "🍗 오늘 단백질(닭가슴살, 계란, 우유 등) 든든하게 챙겨 먹기!",
+            "😄 거울 보면서 세상에서 제일 멋진 포즈 취해보기!",
+            "⚡ 제자리에서 점프 15번 뛰면서 에너지 끌어올리기!"
+        ];
+
+        let lastMissionIndex = -1;
+
+        function pickRandomMission() {
+            const display = document.getElementById('missionDisplay');
+            
+            // 룰렛처럼 빠르게 바뀌는 연출
+            let count = 0;
+            const interval = setInterval(() => {
+                const tempIdx = Math.floor(Math.random() * missions.length);
+                display.textContent = missions[tempIdx];
+                display.style.transform = 'scale(0.98)';
+                count++;
+
+                if (count > 8) {
+                    clearInterval(interval);
+                    
+                    // 직전과 겹치지 않는 최종 미션 선택
+                    let finalIdx;
+                    do {
+                        finalIdx = Math.floor(Math.random() * missions.length);
+                    } while (finalIdx === lastMissionIndex);
+                    
+                    lastMissionIndex = finalIdx;
+                    display.textContent = missions[finalIdx];
+                    display.style.transform = 'scale(1.03)';
+                    setTimeout(() => {
+                        display.style.transform = 'scale(1)';
+                    }, 150);
+                }
+            }, 60);
+        }
+
+        // 페이지 로드 시 바닷속 배경 실행
+        window.addEventListener('DOMContentLoaded', initOceanBackground);
+    </script>
+</body>
+</html>
